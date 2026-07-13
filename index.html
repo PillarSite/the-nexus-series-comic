@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  /* STREAMING_CHUNK: Setting up CSS variable design tokens */
   :root {
     --bg-dark: #06080B;
     --panel-dark: #0D1117;
@@ -32,7 +31,6 @@
     padding: 30px 15px 60px;
   }
 
-  /* STREAMING_CHUNK: Styling the upper control panel */
   .control-bar {
     width: 100%;
     max-width: 1100px;
@@ -72,7 +70,6 @@
     font-weight: 700;
   }
 
-  /* STREAMING_CHUNK: Structuring layout boundaries */
   .book-container {
     width: 100%;
     max-width: 1100px;
@@ -98,7 +95,6 @@
     transition: all 0.3s ease;
   }
 
-  /* STREAMING_CHUNK: Designing view mode navigation buttons */
   .view-toggle-bar {
     display: flex;
     justify-content: space-between;
@@ -152,7 +148,6 @@
     transition: opacity 0.3s ease;
   }
 
-  /* STREAMING_CHUNK: Formatting vertical scrollable comic rows */
   .comic-feed-mode {
     display: flex;
     flex-direction: column;
@@ -206,7 +201,6 @@
     .scene-image-container { max-width: 45%; }
   }
 
-  /* STREAMING_CHUNK: Designing text script sidebar */
   .text-pane {
     flex: 1;
     padding: 40px;
@@ -254,7 +248,6 @@
     line-height: 1.6;
   }
 
-  /* Cover-specific info boxes and teasers */
   .cover-synopsis {
     font-size: 1.05rem;
     line-height: 1.6;
@@ -295,22 +288,217 @@
     line-height: 1.5;
     color: var(--text-muted);
   }
+
+  .diagnostics-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 340px;
+    background: rgba(13, 17, 23, 0.98);
+    border: 1px solid var(--border-glow);
+    border-radius: 12px;
+    padding: 20px;
+    color: #FFF;
+    font-size: 12px;
+    line-height: 1.5;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    display: none;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+  }
+  .diagnostics-panel.open {
+    display: block;
+    transform: translateY(0);
+  }
+  .diagnostics-panel code {
+    background: #21262D;
+    color: #FF9F0A;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .diag-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 101;
+    background: #21262D;
+    border: 1px solid var(--border-glow);
+    color: #FFF;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    display: none; /* Only visible if there is a 404 */
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: background 0.2s;
+  }
+  .diag-toggle-btn:hover {
+    background: #30363D;
+  }
+  .preview-dropzone {
+    margin-top: 16px;
+    border: 2px dashed #46DDF0;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+    background: rgba(70, 221, 240, 0.05);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .preview-dropzone:hover {
+    background: rgba(70, 221, 240, 0.1);
+  }
 </style>
 
 <script>
-  /* STREAMING_CHUNK: Initializing active view states and static mappings */
+  const localImageCache = {};
   let currentVolumeIdx = 0;
   let currentViewMode = 'cover'; // 'cover' or 'comic'
+  const reportedMissingFiles = new Set();
 
+  function handleImageError(imgElement, volNum, panelNum) {
+    try {
+      if (!volNum) volNum = 1;
+      
+      const cacheKey = "vol" + volNum + "_panel" + panelNum;
+      if (localImageCache[cacheKey]) {
+        imgElement.src = localImageCache[cacheKey];
+        return;
+      }
+
+      let variations = [];
+
+      // Safe backup mapping array pointing directly to whatever structure exists
+      if (panelNum === 0) {
+        if (volNum === 1) {
+          variations = ["cover1.png.PNG", "cover1.PNG", "cover1.png", "Ren (Grid).PNG"];
+        } else if (volNum === 2) {
+          variations = ["cover2.png.PNG", "cover2.PNG", "cover2.png", "Maya (Water)_2.PNG"];
+        } else if (volNum === 3) {
+          variations = ["cover3.png.PNG", "cover3.PNG", "cover3.png", "Kai (Fiber).PNG"];
+        } else if (volNum === 4) {
+          variations = ["cover4.png.PNG", "cover4.PNG", "cover4.png", "Sora (Community).PNG"];
+        }
+      } 
+      else if (panelNum === 1) {
+        variations = ["panel1_1.png.png", "panel1_1.png", "panel1_1.PNG", "panel.1.png"];
+      } else if (panelNum === 2) {
+        variations = ["panel1.2.png.png", "panel1_2.png.png", "panel1_2.png", "panel.2.png"];
+      } else if (panelNum === 3) {
+        variations = ["panel1.3.png.png", "panel1_3.png.png", "panel1_3.png", "panel.3.png"];
+      }
+
+      const currentFilename = decodeURIComponent(imgElement.src.substring(imgElement.src.lastIndexOf('/') + 1).split('?')[0]);
+
+      let currentIdx = parseInt(imgElement.dataset.fallbackIndex || "0");
+      let nextFileName = "";
+
+      while (currentIdx < variations.length) {
+        const candidate = variations[currentIdx];
+        currentIdx++;
+        
+        if (!candidate) {
+          continue;
+        }
+
+        if (candidate === currentFilename) {
+          continue;
+        }
+        
+        nextFileName = candidate;
+        break;
+      }
+
+      if (nextFileName) {
+        imgElement.dataset.fallbackIndex = currentIdx;
+        const currentSrc = imgElement.src;
+        const directoryPath = currentSrc.substring(0, currentSrc.lastIndexOf('/') + 1);
+        imgElement.src = directoryPath + encodeURIComponent(nextFileName) + '?v=' + new Date().getTime();
+      } else {
+        if (panelNum > 0) {
+          showDiagnostics(imgElement, "panel." + panelNum + ".png");
+        } else {
+          showDiagnostics(imgElement, "cover" + volNum + ".png");
+        }
+      }
+    } catch (e) {
+      console.error(imgElement, e);
+    }
+  }
+
+  function showDiagnostics(imgElement, expectedName) {
+    reportedMissingFiles.add(expectedName);
+    
+    const missingFileName = document.getElementById('missingFileName');
+    const diagToggleBtn = document.getElementById('diagToggleBtn');
+    
+    if (missingFileName) {
+      missingFileName.innerText = Array.from(reportedMissingFiles).join(', ');
+    }
+    
+    if (diagToggleBtn) {
+      diagToggleBtn.style.display = 'flex';
+      document.getElementById('diagButtonText').innerText = "File Status (" + reportedMissingFiles.size + " Missing)";
+    }
+    
+    imgElement.style.opacity = '0.15';
+  }
+
+  function toggleDiagnosticsPanel() {
+    const diagPanel = document.getElementById('diagPanel');
+    if (diagPanel) {
+      diagPanel.classList.toggle('open');
+    }
+  }
+
+  function handleLocalFiles(files) {
+    for (let file of files) {
+      const name = file.name.toLowerCase();
+      let panelIndex = -1;
+
+      if (name.includes('panel1') || name.includes('panel.1') || name.includes('scene 1')) panelIndex = 1;
+      else if (name.includes('panel2') || name.includes('panel.2') || name.includes('scene 2')) panelIndex = 2;
+      else if (name.includes('panel3') || name.includes('panel.3') || name.includes('scene 3')) panelIndex = 3;
+
+      if (panelIndex !== -1) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const cacheKey = "vol1_panel" + panelIndex;
+          localImageCache[cacheKey] = e.target.result;
+          
+          reportedMissingFiles.delete("panel." + panelIndex + ".png");
+          if (reportedMissingFiles.size === 0) {
+            document.getElementById('diagToggleBtn').style.display = 'none';
+            document.getElementById('diagPanel').classList.remove('open');
+          } else {
+            document.getElementById('diagButtonText').innerText = "File Status (" + reportedMissingFiles.size + " Missing)";
+            document.getElementById('missingFileName').innerText = Array.from(reportedMissingFiles).join(', ');
+          }
+
+          if (currentViewMode === 'comic') {
+            renderVisualPane();
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  // Configuration mapping array referencing the double extension names perfectly!
   const seriesData = [
     {
       volume: "Volume 01 // Energy Grid Dynamics",
       accent: "var(--accent-orange)",
       title: "Powering the Cloud",
-      coverImg: "cover1.png",
+      coverImg: "cover1.png.PNG",
       panels: [
         { 
-          img: "panel1_1.png",
+          img: "panel1_1.png.png",
           desc: "Scene 1: Ren's Bedroom",
           narration: "Ren thought a faster gaming setup would stop his lagging. He didn't know his data was battling massive infrastructure limits across the grid...",
           dialogue: `
@@ -321,7 +509,7 @@
           `
         },
         { 
-          img: "panel1_2.png",
+          img: "panel1.2.png.png",
           desc: "Scene 2: GridRunner_99",
           narration: "Miles away, his duo partner GridRunner_99 answers the call calmly, monitoring the network balances from his custom rig...",
           dialogue: `
@@ -332,7 +520,7 @@
           `
         },
         { 
-          img: "panel1_3.png",
+          img: "panel1.3.png.png",
           desc: "Scene 3: Battery Substation",
           narration: "Behind the scenes, the battery infrastructure operates transparently to handle peak regional energy surges...",
           dialogue: `
@@ -360,7 +548,7 @@
       volume: "Volume 02 // Advanced Fluid Mechanics",
       accent: "var(--accent-cyan)",
       title: "Deep Water, Cold Code",
-      coverImg: "cover2.png", // Explicitly links to our simplified Maya Dr. Jones cover
+      coverImg: "cover2.png.PNG", 
       panels: [],
       htmlContent: `
         <div class="cover-synopsis">
@@ -379,7 +567,7 @@
       volume: "Volume 03 // Global Logistics",
       accent: "var(--accent-purple)",
       title: "Dark Fiber Paths",
-      coverImg: "cover3.png", // Explicitly links to our simplified Kai cover
+      coverImg: "cover3.png.PNG", 
       panels: [],
       htmlContent: `
         <div class="cover-synopsis">
@@ -398,7 +586,7 @@
       volume: "Volume 04 // Public Macroeconomics",
       accent: "var(--accent-green)",
       title: "The Digital Neighbor",
-      coverImg: "cover4.png", // Explicitly links to our simplified Sora cover
+      coverImg: "cover4.png.PNG", 
       panels: [],
       htmlContent: `
         <div class="cover-synopsis">
@@ -415,7 +603,6 @@
     }
   ];
 
-  /* STREAMING_CHUNK: Coding modular Volume swapping functions */
   function loadVolume(index) {
     currentVolumeIdx = index;
     const buttons = document.querySelectorAll('.btn-vol');
@@ -444,7 +631,6 @@
     `;
   }
 
-  /* STREAMING_CHUNK: Coding layout toggles for cover and sequential feeds */
   function switchViewMode(mode) {
     currentViewMode = mode;
     document.getElementById('btnCover').classList.toggle('active', mode === 'cover');
@@ -466,7 +652,6 @@
     renderVisualPane();
   }
 
-  /* STREAMING_CHUNK: Rendering alternating sequential rows in comic mode */
   function renderVisualPane() {
     const viewport = document.getElementById('viewport');
     if (!viewport) return;
@@ -475,18 +660,20 @@
     if (currentViewMode === 'cover') {
       viewport.innerHTML = `
         <div class="single-image-mode" id="singleImageContainer">
-          <img id="panelImage" class="manga-img" src="${data.coverImg}?v=${new Date().getTime()}" alt="Cover Graphic">
+          <img id="panelImage" class="manga-img" src="${data.coverImg}?v=${new Date().getTime()}" alt="Cover Graphic" onerror="handleImageError(this, ${currentVolumeIdx + 1}, 0)">
         </div>
       `;
     } else {
       let stripHtml = `<div class="comic-feed-mode">`;
       data.panels.forEach((panel, pIdx) => {
+        const cacheKey = "vol" + (currentVolumeIdx + 1) + "_panel" + (pIdx + 1);
+        const srcPath = localImageCache[cacheKey] || encodeURIComponent(panel.img);
         const isEven = (pIdx % 2 === 1);
 
         stripHtml += `
           <div class="scene-card ${isEven ? 'alternate' : ''}">
             <div class="scene-image-container">
-              <img src="${panel.img}?v=${new Date().getTime()}" alt="${panel.desc}">
+              <img src="${srcPath}?v=${new Date().getTime()}" alt="${panel.desc}" onerror="handleImageError(this, ${currentVolumeIdx + 1}, ${pIdx + 1})">
             </div>
             <div class="scene-text-container">
               <div class="narration">${panel.narration}</div>
@@ -500,9 +687,17 @@
     }
   }
 
-  /* STREAMING_CHUNK: Coding init loaders on page load */
   window.onload = function() {
     loadVolume(0);
+
+    const dropzone = document.getElementById('dropzone');
+    if (dropzone) {
+      window.addEventListener('dragover', e => e.preventDefault());
+      window.addEventListener('drop', e => {
+        e.preventDefault();
+        handleLocalFiles(e.dataTransfer.files);
+      });
+    }
   };
 </script>
 </head>
@@ -532,12 +727,42 @@
       <!-- Canvas viewport -->
       <div class="canvas-viewport" id="viewport">
         <div class="single-image-mode" id="singleImageContainer">
-          <img id="panelImage" class="manga-img" src="" alt="Series Cover Asset">
+          <img id="panelImage" class="manga-img" src="" alt="Series Cover Asset" onerror="handleImageError(this, 1, 0)">
         </div>
       </div>
     </div>
     <div class="text-pane" id="textPane"></div>
   </div>
+</div>
+
+<!-- Subtle, non-blocking Connection diagnostics trigger and drawer panel -->
+<button class="diag-toggle-btn" id="diagToggleBtn" onclick="toggleDiagnosticsPanel()">
+  <span>⚠️</span> <span id="diagButtonText">File Status Check</span>
+</button>
+
+<div class="diagnostics-panel" id="diagPanel">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-glow); padding-bottom:8px;">
+    <strong style="color: #FF453A; font-size: 13px;">🔍 File Connection Diagnostic:</strong>
+    <span onclick="toggleDiagnosticsPanel()" style="cursor:pointer; color:var(--text-muted); font-weight:bold; font-size:14px;">&times;</span>
+  </div>
+  <p style="margin-bottom:10px; color:var(--text-muted); font-size:11px;">GitHub returned a 404 for one or more files. We automatically cycled fallbacks to load what was found!</p>
+  
+  <p style="font-size:11px; margin-bottom:4px; font-weight:bold;">Currently Missing File:</p>
+  <code id="missingFileName" style="display:block; margin-bottom:12px; word-break:break-all;">panel.1.png</code>
+  
+  <!-- Live Preview Dropzone -->
+  <div class="preview-dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+    <p style="font-weight: bold; color: #46DDF0; margin-bottom: 4px; font-size:11px;">⚡ Drag &amp; Drop Live Preview ⚡</p>
+    <p style="font-size: 10px; color: var(--text-muted)">Drop panel images directly here to bypass GitHub hosting delays!</p>
+    <input type="file" id="fileInput" multiple style="display: none;" onchange="handleLocalFiles(this.files)">
+  </div>
+
+  <p style="margin-top:12px; font-size:11px; color: var(--text-muted);">Ensure files in root directory are named:</p>
+  <ul style="margin-left: 15px; margin-top: 4px; color: var(--accent-orange); font-family: monospace; font-size:11px;">
+    <li>panel.1.png</li>
+    <li>panel.2.png</li>
+    <li>panel.3.png</li>
+  </ul>
 </div>
 
 </body>
