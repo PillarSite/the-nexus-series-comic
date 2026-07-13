@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Nexus Series // Anime Dashboard & Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  /* STREAMING_CHUNK: Setting up CSS variable design tokens */
+  :root {
+    --bg-dark: #06080B;
+    --panel-dark: #0D1117;
+    --border-glow: #21262D;
+    --text-primary: #F3F4F6;
+    --text-muted: #8B949E;
+    --accent-orange: #FF8A00;
+    --accent-cyan: #46DDF0;
+    --accent-green: #59E391;
+    --accent-purple: #D186FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-dark);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 15px 60px;
+  }
+
+  /* STREAMING_CHUNK: Styling the upper control panel */
+  .control-bar {
+    width: 100%;
+    max-width: 1100px;
+    background: #000;
+    border: 1px solid var(--border-glow);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  .control-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .selector-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .btn-vol {
+    background: var(--panel-dark);
+    border: 1px solid var(--border-glow);
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-vol.active {
+    background: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* STREAMING_CHUNK: Structuring layout boundaries */
+  .book-container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--panel-dark);
+    border: 1px solid var(--border-glow);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .page-layout { display: flex; min-height: 650px; transition: all 0.3s ease; }
+
+  .visual-pane {
+    flex: 1.1;
+    background: #0b0e14;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--border-glow);
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  /* STREAMING_CHUNK: Designing view mode navigation buttons */
+  .view-toggle-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-glow);
+    z-index: 5;
+  }
+  .toggle-btn {
+    background: var(--panel-dark);
+    border: 1px solid var(--border-glow);
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .toggle-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .canvas-viewport {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 20px;
+    width: 100%;
+  }
+
+  .single-image-mode {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .manga-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    transition: opacity 0.3s ease;
+  }
+
+  /* STREAMING_CHUNK: Formatting vertical scrollable comic rows */
+  .comic-feed-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    width: 100%;
+    max-width: 1000px;
+    padding: 10px 0;
+  }
+  .scene-card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-glow);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+  }
+  .scene-image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid var(--border-glow);
+    min-height: 250px;
+  }
+  .scene-image-container img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 8px;
+    display: block;
+  }
+  .scene-text-container {
+    flex: 1.1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .scene-card { flex-direction: row; align-items: stretch; }
+    .scene-card.alternate { flex-direction: row-reverse; }
+    .scene-image-container { max-width: 45%; }
+  }
+
+  /* STREAMING_CHUNK: Designing text script sidebar */
+  .text-pane {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  .meta-tag {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .narration {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .dialogue-box {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    padding: 16px;
+    border-left: 3px solid var(--accent-cyan);
+    transition: border-color 0.3s ease;
+  }
+  .char-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: 0.1em;
+  }
+  .dialogue-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Cover-specific info boxes and teasers */
+  .cover-synopsis {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  .stem-insight-box {
+    background: rgba(70, 221, 240, 0.03);
+    border: 1px solid var(--border-glow);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stem-insight-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent-green);
+  }
+  .stem-insight-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-green);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stem-insight-desc {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  /* STREAMING_CHUNK: Initializing active view states and static mappings */
+  let currentVolumeIdx = 0;
+  let currentViewMode = 'cover'; // 'cover' or 'comic'
+
+  const seriesData = [
+    {
+      volume: "Volume 01 // Energy Grid Dynamics",
+      accent: "var(--accent-orange)",
+      title: "Powering the Cloud",
+      coverImg: "cover1.png",
+      panels: [
+        { 
+          img: "panel1_1.png",
+          desc: "Scene 1: Ren's Bedroom",
+          narration: "Ren thought a faster gaming setup would stop his lagging. He didn't know his data was battling massive infrastructure limits across the grid...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-orange);">
+              <div class="char-name" style="color: var(--accent-orange)">REN [GAMER]:</div>
+              <div class="dialogue-text">"My ping just shot up to 300ms?! Generative AI queries are drawing 10x the power of an old search engine, and it's hitting our hometown's electrical core!"</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel1_2.png",
+          desc: "Scene 2: GridRunner_99",
+          narration: "Miles away, his duo partner GridRunner_99 answers the call calmly, monitoring the network balances from his custom rig...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
+              <div class="char-name" style="color: var(--accent-cyan)">GRIDRUNNER_99:</div>
+              <div class="dialogue-text">"My ping is solid, Ren. Ren, you may want to check your router. You forget that when I'm not gaming, I'm a power grid network engineer! I'm monitoring our local substation's dashboard right now. The network itself is completely stable—our regional data center down the road actually integrates massive battery storage plants to balance the load."</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel1_3.png",
+          desc: "Scene 3: Battery Substation",
+          narration: "Behind the scenes, the battery infrastructure operates transparently to handle peak regional energy surges...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
+              <div class="char-name" style="color: var(--accent-purple)">GRIDRUNNER_99:</div>
+              <div class="dialogue-text">"Think of this substation as a giant, city-sized USB power bank! When millions of families turn on appliances at sunset, our batteries discharge clean solar energy directly back to the grid to keep your co-op game lag-free and the community completely stable!"</div>
+            </div>
+          `
+        }
+      ],
+      htmlContent: `
+        <div class="cover-synopsis">
+          Ren's evening co-op raid is cut short by a sudden latency surge. Frustrated by network lag, he blames the cloud—only to find his friend has an entirely different perspective on how computing power and energy infrastructure intersect.
+        </div>
+        
+        <div class="stem-insight-box">
+          <div class="stem-insight-title">⚡ SYSTEM DECODE // Grid Peak Shaving</div>
+          <div class="stem-insight-desc">
+            Modern data centers operate on utility-scale battery substations. They act as "city-sized power banks"—charging with clean renewable solar energy during off-peak morning hours, and discharging power back into the municipal grid at sunset when neighborhood demand peaks, preventing localized server latency and grid stress.
+          </div>
+        </div>
+      `
+    },
+    {
+      volume: "Volume 02 // Advanced Fluid Mechanics",
+      accent: "var(--accent-cyan)",
+      title: "Deep Water, Cold Code",
+      coverImg: "cover2.png", // Explicitly links to our simplified Maya Dr. Jones cover
+      panels: [],
+      htmlContent: `
+        <div class="cover-synopsis">
+          When plans for a new hyper-scale AI center spark community protests over watershed safety, environmental advocate Sora confronts lead engineer Dr. Maya Jones. She is forced to prove how innovative computing design can bypass public resources entirely.
+        </div>
+        
+        <div class="stem-insight-box" style="border-color: var(--accent-cyan);">
+          <div class="stem-insight-title" style="color: var(--accent-cyan);">💧 CORE DIRECTIVE // Fluid Submersion</div>
+          <div class="stem-insight-desc">
+            By submerging servers directly in non-conductive, dielectric fluid, heat is transferred 100x more efficiently than air. This closed-loop single-phase and two-phase liquid system requires zero water evaporation, preserving regional aquifers and rivers.
+          </div>
+        </div>
+      `
+    },
+    {
+      volume: "Volume 03 // Global Logistics",
+      accent: "var(--accent-purple)",
+      title: "Dark Fiber Paths",
+      coverImg: "cover3.png", // Explicitly links to our simplified Kai cover
+      panels: [],
+      htmlContent: `
+        <div class="cover-synopsis">
+          Logistics dispatch specialist Kai has to map data speeds across dark fiber lines buried deep below transoceanic trenches to solve an algorithm failure affecting regional supply distribution networks.
+        </div>
+        
+        <div class="stem-insight-box" style="border-color: var(--accent-purple);">
+          <div class="stem-insight-title" style="color: var(--accent-purple);">🌐 ROUTING INTEL // Dark Fiber Loops</div>
+          <div class="stem-insight-desc">
+            "Dark fiber" refers to unlit, underground fiber-optic cables already laid down during municipal construction. Connecting data centers directly to these pre-existing light highways minimizes data routing loops and ensures lag-free global logistics at the speed of light.
+          </div>
+        </div>
+      `
+    },
+    {
+      volume: "Volume 04 // Public Macroeconomics",
+      accent: "var(--accent-green)",
+      title: "The Digital Neighbor",
+      coverImg: "cover4.png", // Explicitly links to our simplified Sora cover
+      panels: [],
+      htmlContent: `
+        <div class="cover-synopsis">
+          As the town finishes building its high school science academy, Sora investigates how the municipal taxes from the quiet cloud campus down the road are funding local green infrastructure.
+        </div>
+        
+        <div class="stem-insight-box" style="border-color: var(--accent-green);">
+          <div class="stem-insight-title" style="color: var(--accent-green);">🏗️ MUNICIPAL DECODE // Dual-Utility Pipeline</div>
+          <div class="stem-insight-desc">
+            "Dig Once" policies mandate that utility lines and fiber loops are laid down concurrently with city road projects. Data center asset taxes provide highly stable, recurring revenue municipal funding for green public parks and educational technology.
+          </div>
+        </div>
+      `
+    }
+  ];
+
+  /* STREAMING_CHUNK: Coding modular Volume swapping functions */
+  function loadVolume(index) {
+    currentVolumeIdx = index;
+    const buttons = document.querySelectorAll('.btn-vol');
+    buttons.forEach((btn, idx) => btn.classList.toggle('active', idx === index));
+    
+    const data = seriesData[index];
+    
+    const btnComic = document.getElementById('btnComic');
+    if (data.panels.length === 0) {
+      btnComic.style.opacity = '0.3';
+      btnComic.style.pointerEvents = 'none';
+      btnComic.title = "No sequential panels generated yet";
+      switchViewMode('cover');
+    } else {
+      btnComic.style.opacity = '1';
+      btnComic.style.pointerEvents = 'auto';
+      btnComic.title = "";
+    }
+
+    renderVisualPane();
+
+    document.getElementById('textPane').innerHTML = `
+      <div class="meta-tag" style="color: ${data.accent}">${data.volume}</div>
+      <h1>${data.title}</h1>
+      ${data.htmlContent}
+    `;
+  }
+
+  /* STREAMING_CHUNK: Coding layout toggles for cover and sequential feeds */
+  function switchViewMode(mode) {
+    currentViewMode = mode;
+    document.getElementById('btnCover').classList.toggle('active', mode === 'cover');
+    document.getElementById('btnComic').classList.toggle('active', mode === 'comic');
+    document.getElementById('currentViewLabel').innerText = "MODE // " + mode.toUpperCase() + " VIEW";
+    
+    const pageLayout = document.getElementById('pageLayout');
+    const textPane = document.getElementById('textPane');
+    const visualPane = document.getElementById('visualPane');
+
+    if (mode === 'comic') {
+      textPane.style.display = 'none';
+      visualPane.style.flex = '1 1 100%';
+    } else {
+      textPane.style.display = 'flex';
+      visualPane.style.flex = '1.1';
+    }
+
+    renderVisualPane();
+  }
+
+  /* STREAMING_CHUNK: Rendering alternating sequential rows in comic mode */
+  function renderVisualPane() {
+    const viewport = document.getElementById('viewport');
+    if (!viewport) return;
+    const data = seriesData[currentVolumeIdx];
+
+    if (currentViewMode === 'cover') {
+      viewport.innerHTML = `
+        <div class="single-image-mode" id="singleImageContainer">
+          <img id="panelImage" class="manga-img" src="${data.coverImg}?v=${new Date().getTime()}" alt="Cover Graphic">
+        </div>
+      `;
+    } else {
+      let stripHtml = `<div class="comic-feed-mode">`;
+      data.panels.forEach((panel, pIdx) => {
+        const isEven = (pIdx % 2 === 1);
+
+        stripHtml += `
+          <div class="scene-card ${isEven ? 'alternate' : ''}">
+            <div class="scene-image-container">
+              <img src="${panel.img}?v=${new Date().getTime()}" alt="${panel.desc}">
+            </div>
+            <div class="scene-text-container">
+              <div class="narration">${panel.narration}</div>
+              ${panel.dialogue}
+            </div>
+          </div>
+        `;
+      });
+      stripHtml += `</div>`;
+      viewport.innerHTML = stripHtml;
+    }
+  }
+
+  /* STREAMING_CHUNK: Coding init loaders on page load */
+  window.onload = function() {
+    loadVolume(0);
+  };
+</script>
+</head>
+<body>
+
+<div class="control-bar">
+  <div class="control-title">THE NEXUS SERIES // COMIC READER</div>
+  <div class="selector-buttons">
+    <button class="btn-vol active" onclick="loadVolume(0)">Vol. 1: Ren (Grid)</button>
+    <button class="btn-vol" onclick="loadVolume(1)">Vol. 2: Maya (Water)</button>
+    <button class="btn-vol" onclick="loadVolume(2)">Vol. 3: Kai (Fiber)</button>
+    <button class="btn-vol" onclick="loadVolume(3)">Vol. 4: Sora (Community)</button>
+  </div>
+</div>
+
+<div class="book-container">
+  <div class="page-layout" id="pageLayout">
+    <div class="visual-pane" id="visualPane">
+      <div class="view-toggle-bar">
+        <span id="currentViewLabel" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">MODE // COVER VIEW</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="toggle-btn active" id="btnCover" onclick="switchViewMode('cover')">Cover</button>
+          <button class="toggle-btn" id="btnComic" onclick="switchViewMode('comic')">Read Comic</button>
+        </div>
+      </div>
+
+      <!-- Canvas viewport -->
+      <div class="canvas-viewport" id="viewport">
+        <div class="single-image-mode" id="singleImageContainer">
+          <img id="panelImage" class="manga-img" src="" alt="Series Cover Asset">
+        </div>
+      </div>
+    </div>
+    <div class="text-pane" id="textPane"></div>
+  </div>
+</div>
+
+</body>
+</html>
