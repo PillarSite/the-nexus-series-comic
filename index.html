@@ -28,7 +28,7 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 30px 15px 60px;
+    padding: 20px 10px 60px;
   }
 
   .control-bar {
@@ -50,6 +50,7 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.2em;
+    text-align: center;
   }
   .selector-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .btn-vol {
@@ -103,6 +104,7 @@
     padding: 12px 20px;
     border-bottom: 1px solid var(--border-glow);
     z-index: 5;
+    gap: 10px;
   }
   .toggle-btn {
     background: var(--panel-dark);
@@ -289,6 +291,44 @@
     color: var(--text-muted);
   }
 
+  /* STREAMING_CHUNK: Responsive Media Queries for Mobile Screens */
+  @media (max-width: 767px) {
+    body {
+      padding: 15px 8px 40px;
+    }
+    .control-bar {
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .btn-vol {
+      font-size: 11px;
+      padding: 6px 12px;
+    }
+    .page-layout {
+      flex-direction: column;
+      min-height: auto;
+    }
+    .visual-pane {
+      border-right: none;
+      border-bottom: 1px solid var(--border-glow);
+      min-height: 420px;
+      height: 420px;
+    }
+    .view-toggle-bar {
+      padding: 10px 12px;
+    }
+    .text-pane {
+      padding: 30px 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+    }
+    .scene-card {
+      padding: 16px;
+      gap: 16px;
+    }
+  }
+
   .diagnostics-panel {
     position: fixed;
     bottom: 20px;
@@ -355,6 +395,7 @@
   }
 </style>
 
+<!-- Unified Master Script Block in the <head> to guarantee compilation prior to HTML rendering -->
 <script>
   const localImageCache = {};
   let currentVolumeIdx = 0;
@@ -373,7 +414,6 @@
 
       let variations = [];
 
-      // Safe backup mapping array pointing directly to whatever structure exists
       if (panelNum === 0) {
         if (volNum === 1) {
           variations = ["cover1.png.PNG", "cover1.PNG", "cover1.png", "Ren (Grid).PNG"];
@@ -489,7 +529,6 @@
     }
   }
 
-  // Configuration mapping array referencing the double extension names perfectly!
   const seriesData = [
     {
       volume: "Volume 01 // Energy Grid Dynamics",
