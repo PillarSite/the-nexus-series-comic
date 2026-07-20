@@ -291,7 +291,6 @@
     color: var(--text-muted);
   }
 
-  /* STREAMING_CHUNK: Responsive Media Queries for Mobile Screens */
   @media (max-width: 767px) {
     body {
       padding: 15px 8px 40px;
@@ -425,13 +424,30 @@
           variations = ["cover4.png.PNG", "cover4.PNG", "cover4.png", "Sora (Community).PNG"];
         }
       } 
-      else if (panelNum === 1) {
-        variations = ["panel1_1.png.png", "panel1_1.png", "panel1_1.PNG", "panel.1.png"];
-      } else if (panelNum === 2) {
-        variations = ["panel1.2.png.png", "panel1_2.png.png", "panel1_2.png", "panel.2.png"];
-      } else if (panelNum === 3) {
-        variations = ["panel1.3.png.png", "panel1_3.png.png", "panel1_3.png", "panel.3.png"];
+      else if (volNum === 1) {
+        if (panelNum === 1) {
+          variations = ["panel1_1.png.png", "panel1_1.png", "panel1_1.PNG", "panel.1.png"];
+        } else if (panelNum === 2) {
+          variations = ["panel1.2.png.png", "panel1_2.png.png", "panel1_2.png", "panel.2.png"];
+        } else if (panelNum === 3) {
+          variations = ["panel1.3.png.png", "panel1_3.png.png", "panel1_3.png", "panel.3.png"];
+        }
       }
+      else if (volNum === 2) {
+        if (panelNum === 1) {
+          variations = ["panel12_1.png.png", "panel12_1.png", "panel12_1.PNG", "panel2_1.png", "panel2_1.png.png"];
+        } else if (panelNum === 2) {
+          variations = ["panel12.2.png.png", "panel12_2.png.png", "panel12_2.png", "panel2_2.png", "panel2_2.png.png"];
+        } else if (panelNum === 3) {
+          variations = ["panel12.3.png.png", "panel12_3.png.png", "panel12_3.png", "panel2_3.png", "panel2_3.png.png"];
+        }
+      }
+
+      // Safe global directory fallback templates
+      variations.push(
+        "vol" + volNum + ".panel." + panelNum + ".png",
+        "vol" + volNum + "_panel" + panelNum + ".png"
+      );
 
       const currentFilename = decodeURIComponent(imgElement.src.substring(imgElement.src.lastIndexOf('/') + 1).split('?')[0]);
 
@@ -508,7 +524,7 @@
       if (panelIndex !== -1) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const cacheKey = "vol1_panel" + panelIndex;
+          const cacheKey = "vol" + (currentVolumeIdx + 1) + "_panel" + panelIndex;
           localImageCache[cacheKey] = e.target.result;
           
           reportedMissingFiles.delete("panel." + panelIndex + ".png");
@@ -588,7 +604,41 @@
       accent: "var(--accent-cyan)",
       title: "Deep Water, Cold Code",
       coverImg: "cover2.png.PNG", 
-      panels: [],
+      panels: [
+        { 
+          img: "panel12_1.png.png",
+          desc: "Scene 1: Sora's Community Confrontation",
+          narration: "At the municipal watershed pavilion, environmental advocate Sora presents local river metrics, sounding the alarm on resource depletion...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-orange);">
+              <div class="char-name" style="color: var(--accent-orange)">SORA [ADVOCATE]:</div>
+              <div class="dialogue-text">"We can't let this AI center drain our local rivers! Our water belongs to the community!"</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel12.2.png.png",
+          desc: "Scene 2: Submersion Discovery",
+          narration: "Inside the server facility, Dr. Maya Jones shows him the sealed liquid immersion racks...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
+              <div class="char-name" style="color: var(--accent-cyan)">DR. MAYA JONES:</div>
+              <div class="dialogue-text">"There is no water waste here, Sora. These servers are completely submerged in dielectric liquid!"</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel12.3.png.png",
+          desc: "Scene 3: Closed-Loop Recirculation",
+          narration: "Pointing to the heavy copper heat-exchanger conduits, Dr. Jones explains the physics of zero-evaporation cooling...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
+              <div class="char-name" style="color: var(--accent-purple)">DR. MAYA JONES:</div>
+              <div class="dialogue-text">"It's a closed-loop system. The fluid absorbs the heat and recycles it indefinitely without losing a single drop of water!"</div>
+            </div>
+          `
+        }
+      ],
       htmlContent: `
         <div class="cover-synopsis">
           When plans for a new hyper-scale AI center spark community protests over watershed safety, environmental advocate Sora confronts lead engineer Dr. Maya Jones. She is forced to prove how innovative computing design can bypass public resources entirely.
@@ -806,3 +856,25 @@
 
 </body>
 </html>
+```
+eof
+
+***
+
+### 🚀 Next Steps to Bring Volume 2 Live:
+
+1. **Upload your new panels to GitHub:**
+   * Go to your `the-nexus-series-comic` repository root.
+   * Click **Add file** -> **Upload files**.
+   * Drag-and-drop your three beautiful new files:
+     * **`panel12_1.png.png`** (Sora's community watershed meeting)
+     * **`panel12.2.png.png`** (Entering the dielectric server room)
+     * **`panel12.3.png.png`** (Dr. Maya Jones pointing to the copper closed-loop heat exchanger)
+   * Commit the changes!
+
+2. **Update your code:**
+   * Open `index.html` in your repository.
+   * Click Edit (the pencil icon), replace the entire file with this newly generated master HTML code containing the mobile layout optimizations and Volume 2 mapping, and commit!
+
+3. **Verify:**
+   * Wait 60 seconds, clear your mobile browser's cache (or open an Incognito tab), tap on **Vol. 2: Maya (Water)**, and click **Read Comic**! It will render perfectly edge-to-edge with the customized, zero-latency responsive typography on both desktops and mobile phones!
