@@ -31,6 +31,7 @@
     padding: 20px 10px 60px;
   }
 
+  /* STREAMING_CHUNK: Styling the control header and volume selector... */
   .control-bar {
     width: 100%;
     max-width: 1100px;
@@ -71,6 +72,7 @@
     font-weight: 700;
   }
 
+  /* STREAMING_CHUNK: Designing the responsive dual-pane layout... */
   .book-container {
     width: 100%;
     max-width: 1100px;
@@ -150,6 +152,7 @@
     transition: opacity 0.3s ease;
   }
 
+  /* STREAMING_CHUNK: Styling the vertical sequential reader... */
   .comic-feed-mode {
     display: flex;
     flex-direction: column;
@@ -203,6 +206,7 @@
     .scene-image-container { max-width: 45%; }
   }
 
+  /* STREAMING_CHUNK: Refining sidebar panels and typography options... */
   .text-pane {
     flex: 1;
     padding: 40px;
@@ -291,6 +295,7 @@
     color: var(--text-muted);
   }
 
+  /* STREAMING_CHUNK: Enforcing strict mobile-first stacking breakpoints... */
   @media (max-width: 767px) {
     body {
       padding: 15px 8px 40px;
@@ -394,6 +399,7 @@
   }
 </style>
 
+<!-- STREAMING_CHUNK: Integrating routing engine and image connection fallbacks... -->
 <script>
   const localImageCache = {};
   let currentVolumeIdx = 0;
@@ -448,6 +454,15 @@
           variations = ["panel3_2.png", "panel3_2.png.png", "panel3_2.PNG", "panel3.2.png"];
         } else if (panelNum === 3) {
           variations = ["panel3_3.png", "panel3_3.png.png", "panel3_3.PNG", "panel3.3.png"];
+        }
+      }
+      else if (volNum === 4) {
+        if (panelNum === 1) {
+          variations = ["panel4_1.png", "panel4_1.png.png", "panel4_1.PNG", "panel4.1.png"];
+        } else if (panelNum === 2) {
+          variations = ["panel4_2.png", "panel4_2.png.png", "panel4_2.PNG", "panel4.2.png"];
+        } else if (panelNum === 3) {
+          variations = ["panel4_3.png", "panel4_3.png.png", "panel4_3.PNG", "panel4.3.png"];
         }
       }
 
@@ -552,6 +567,7 @@
     }
   }
 
+  /* STREAMING_CHUNK: Mapping master series data and complementary sidebar feeds... */
   const seriesData = [
     {
       volume: "Volume 01 // Energy Grid Dynamics",
@@ -717,7 +733,41 @@
       accent: "var(--accent-green)",
       title: "The Digital Neighbor",
       coverImg: "cover4.png.PNG", 
-      panels: [],
+      panels: [
+        { 
+          img: "panel4_1.png",
+          desc: "Scene 1: The Investigation",
+          narration: "Sora cross-references the school's capital improvement budget with municipal property tax disbursements...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-green);">
+              <div class="char-name" style="color: var(--accent-green)">MUNICIPAL BUDGET DIRECTIVE</div>
+              <div class="dialogue-text">School Infrastructure Fund: +$12.4M | Cloud Campus Contribution: 84.6% of local tech capital valuation. Target: Science Academy Complete.</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel4_2.png",
+          desc: "Scene 2: The Dual-Utility Trench",
+          narration: "The local utility foreman outlines the municipal masterplan: laying water mains and dark fiber concurrently...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
+              <div class="char-name" style="color: var(--accent-cyan)">CIVIL INFRASTRUCTURE SCHEMATIC</div>
+              <div class="dialogue-text">Dig Once Policy active. 12-inch Water Pipeline and 4-way HDPE Fiber Duct lay concurrently. Taxpayer overhead savings: 42%.</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel4_3.png",
+          desc: "Scene 3: The Green Solar Park",
+          narration: "Standing amidst the newly constructed green space, Sora witnesses the compounding return on clean digital investment...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
+              <div class="char-name" style="color: var(--accent-purple)">PARK MICRO-GRID REPORT</div>
+              <div class="dialogue-text">Solar Array capacity: 145kW (Peak) | Net Metering surplus: 12% to community loop | Public park green acreage fully funded.</div>
+            </div>
+          `
+        }
+      ],
       htmlContent: `
         <div class="cover-synopsis">
           As the town finishes building its high school science academy, Sora investigates how the municipal taxes from the quiet cloud campus down the road are funding local green infrastructure.
@@ -733,6 +783,7 @@
     }
   ];
 
+  /* STREAMING_CHUNK: Managing master rendering states and reader actions... */
   function loadVolume(index) {
     currentVolumeIdx = index;
     const buttons = document.querySelectorAll('.btn-vol');
@@ -782,6 +833,7 @@
     renderVisualPane();
   }
 
+  /* STREAMING_CHUNK: Generating responsive strip compositions... */
   function renderVisualPane() {
     const viewport = document.getElementById('viewport');
     if (!viewport) return;
