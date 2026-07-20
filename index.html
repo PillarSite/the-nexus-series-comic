@@ -370,7 +370,7 @@
     cursor: pointer;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    display: none; /* Only visible if there is a 404 */
+    display: none;
     align-items: center;
     gap: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -394,11 +394,10 @@
   }
 </style>
 
-<!-- Unified Master Script Block in the <head> to guarantee compilation prior to HTML rendering -->
 <script>
   const localImageCache = {};
   let currentVolumeIdx = 0;
-  let currentViewMode = 'cover'; // 'cover' or 'comic'
+  let currentViewMode = 'cover'; 
   const reportedMissingFiles = new Set();
 
   function handleImageError(imgElement, volNum, panelNum) {
@@ -443,7 +442,6 @@
         }
       }
 
-      // Safe global directory fallback templates
       variations.push(
         "vol" + volNum + ".panel." + panelNum + ".png",
         "vol" + volNum + "_panel" + panelNum + ".png"
@@ -570,7 +568,7 @@
           dialogue: `
             <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
               <div class="char-name" style="color: var(--accent-cyan)">GRIDRUNNER_99:</div>
-              <div class="dialogue-text">"My ping is solid, Ren. Ren, you may want to check your router. You forget that when I'm not gaming, I'm a power grid network engineer! I'm monitoring our local substation's dashboard right now. The network itself is completely stable—our regional data center down the road actually integrates massive battery storage plants to balance the load."</div>
+              <div class="dialogue-text">"Ren, you forget that when I'm not gaming, I'm a power grid network engineer! I'm monitoring our local substation's dashboard right now. The network itself is completely stable—our regional data center down the road actually integrates massive battery storage plants to balance the load."</div>
             </div>
           `
         },
@@ -581,7 +579,7 @@
           dialogue: `
             <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
               <div class="char-name" style="color: var(--accent-purple)">GRIDRUNNER_99:</div>
-              <div class="dialogue-text">"Think of this substation as a giant, city-sized USB power bank! When millions of families turn on appliances at sunset, our batteries discharge clean solar energy directly back to the grid to keep your co-op game lag-free and the community completely stable!"</div>
+              <div class="dialogue-text">"When millions of families turn on appliances at sunset, our batteries discharge clean solar energy directly back to the grid to keep your co-op game lag-free and the community completely stable!"</div>
             </div>
           `
         }
@@ -612,7 +610,7 @@
           dialogue: `
             <div class="dialogue-box" style="border-left-color: var(--accent-orange);">
               <div class="char-name" style="color: var(--accent-orange)">SORA [ADVOCATE]:</div>
-              <div class="dialogue-text">"We can't let this AI center drain our local rivers! Our water belongs to the community!"</div>
+              <div class="dialogue-text">"This hyperscale AI facility will consume millions of gallons of water daily just to cool its processors! Our municipal watershed is already under stress—we can't sacrifice our natural resources for computational power!"</div>
             </div>
           `
         },
@@ -623,7 +621,7 @@
           dialogue: `
             <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
               <div class="char-name" style="color: var(--accent-cyan)">DR. MAYA JONES:</div>
-              <div class="dialogue-text">"There is no water waste here, Sora. These servers are completely submerged in dielectric liquid!"</div>
+              <div class="dialogue-text">"Come closer and take a look. Those motherboards are resting inside sealed, clear tanks filled with non-conductive, dielectric fluid. Heat transfers directly into the liquid, bypassing the need for any open-air evaporation or river water extraction."</div>
             </div>
           `
         },
@@ -634,7 +632,7 @@
           dialogue: `
             <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
               <div class="char-name" style="color: var(--accent-purple)">DR. MAYA JONES:</div>
-              <div class="dialogue-text">"It's a closed-loop system. The fluid absorbs the heat and recycles it indefinitely without losing a single drop of water!"</div>
+              <div class="dialogue-text">"The hot liquid is pumped through these heavy copper heat-exchangers, cooled by outside air radiators, and returned right back to the tank. It is a completely self-contained cycle that preserves our drinking holes while keeping our AI engines icy cold."</div>
             </div>
           `
         }
@@ -861,20 +859,6 @@ eof
 
 ***
 
-### 🚀 Next Steps to Bring Volume 2 Live:
+The file is updated! I removed the exact word-for-word redundancy in the script sidebars to let them perfectly complement the bubble graphics (just like in Volume 1's flow), and cleanly excised the raw trailing text leak seen in `Screenshot 2026-07-20 074634.jpg`.
 
-1. **Upload your new panels to GitHub:**
-   * Go to your `the-nexus-series-comic` repository root.
-   * Click **Add file** -> **Upload files**.
-   * Drag-and-drop your three beautiful new files:
-     * **`panel12_1.png.png`** (Sora's community watershed meeting)
-     * **`panel12.2.png.png`** (Entering the dielectric server room)
-     * **`panel12.3.png.png`** (Dr. Maya Jones pointing to the copper closed-loop heat exchanger)
-   * Commit the changes!
-
-2. **Update your code:**
-   * Open `index.html` in your repository.
-   * Click Edit (the pencil icon), replace the entire file with this newly generated master HTML code containing the mobile layout optimizations and Volume 2 mapping, and commit!
-
-3. **Verify:**
-   * Wait 60 seconds, clear your mobile browser's cache (or open an Incognito tab), tap on **Vol. 2: Maya (Water)**, and click **Read Comic**! It will render perfectly edge-to-edge with the customized, zero-latency responsive typography on both desktops and mobile phones!
+Wait 60 seconds for GitHub Pages to deploy, clear your browser cache, and test it out on your desktop and phone! How does this look to you?
