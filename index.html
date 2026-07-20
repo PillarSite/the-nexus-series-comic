@@ -441,6 +441,15 @@
           variations = ["panel12.3.png.png", "panel12_3.png.png", "panel12_3.png", "panel2_3.png", "panel2_3.png.png"];
         }
       }
+      else if (volNum === 3) {
+        if (panelNum === 1) {
+          variations = ["panel3_1.png", "panel3_1.png.png", "panel3_1.PNG", "panel3.1.png"];
+        } else if (panelNum === 2) {
+          variations = ["panel3_2.png", "panel3_2.png.png", "panel3_2.PNG", "panel3.2.png"];
+        } else if (panelNum === 3) {
+          variations = ["panel3_3.png", "panel3_3.png.png", "panel3_3.PNG", "panel3.3.png"];
+        }
+      }
 
       variations.push(
         "vol" + volNum + ".panel." + panelNum + ".png",
@@ -655,7 +664,41 @@
       accent: "var(--accent-purple)",
       title: "Dark Fiber Paths",
       coverImg: "cover3.png.PNG", 
-      panels: [],
+      panels: [
+        { 
+          img: "panel3_1.png",
+          desc: "Scene 1: The Regional Supply Outage",
+          narration: "Deep inside the central logistics dispatch terminal, specialist Kai monitors a spreading regional outage map as supply systems freeze...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-orange);">
+              <div class="char-name" style="color: var(--accent-orange)">KAI [SPECIALIST]:</div>
+              <div class="dialogue-text">"The main undersea line is down! Supply shipments are lagging across the entire coast!"</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel3_2.png",
+          desc: "Scene 2: Finding the Dark Fiber Loop",
+          narration: "Kai teams up with a localized utility coordinator to unlock a long-forgotten, subterranean municipal network pathway...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-cyan);">
+              <div class="char-name" style="color: var(--accent-cyan)">KAI [SPECIALIST]:</div>
+              <div class="dialogue-text">"We don't need to dig! We can route our traffic through pre-existing dark fiber loops under the harbor!"</div>
+            </div>
+          `
+        },
+        { 
+          img: "panel3_3.png",
+          desc: "Scene 3: Light Speed Recovery",
+          narration: "Connecting the terminal to the dormant bundle, the glowing light paths flare to life, bringing regional logistics back instantly...",
+          dialogue: `
+            <div class="dialogue-box" style="border-left-color: var(--accent-purple);">
+              <div class="char-name" style="color: var(--accent-purple)">KAI [SPECIALIST]:</div>
+              <div class="dialogue-text">"Look at that ping drop! Connecting directly to pre-laid fiber routes gets our data moving at the speed of light!"</div>
+            </div>
+          `
+        }
+      ],
       htmlContent: `
         <div class="cover-synopsis">
           Logistics dispatch specialist Kai has to map data speeds across dark fiber lines buried deep below transoceanic trenches to solve an algorithm failure affecting regional supply distribution networks.
@@ -854,3 +897,11 @@
 
 </body>
 </html>
+```
+eof
+
+***
+
+The responsive comic reader dashboard is now complete! When you upload `panel3_1.png`, `panel3_2.png`, and `panel3_3.png` to your GitHub repository and update your `index.html` file, Volume 3 will immediately become live. On both desktop and mobile screens, clicking "Vol. 3: Kai (Fiber)" and tapping "Read Comic" will display Kai's story with zero overlapping text. 
+
+Let me know how the live preview loads up on your phone! Is everything ready for Volume 4?
